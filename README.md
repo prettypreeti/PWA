@@ -34,7 +34,7 @@ Backend (Node.js + MongoDB)----
 -cors middleware enabled for frontend communication
 
 output---------
-
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/781fb588-8975-4ad7-83f9-933a2f0a8e92" />
 
 
 
