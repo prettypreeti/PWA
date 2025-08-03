@@ -32,3 +32,7 @@ Backend (Node.js + MongoDB)----
 -/orders POST route receives and saves orders
 -mongoose for MongoDB connection
 -cors middleware enabled for frontend communication
+
+
+
+
