@@ -33,6 +33,8 @@ Backend (Node.js + MongoDB)----
 -mongoose for MongoDB connection
 -cors middleware enabled for frontend communication
 
+output---------
+
 
 
 
