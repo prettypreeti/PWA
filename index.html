@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#317EFB"/>
+    <title>ShopPWA - Your Offline E-Commerce</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --accent: #ff006e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .hero {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                              url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a539f689-c384-401e-a67b-47eea41991b4.png');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .add-to-cart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            background-color: #2a75e6;
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .cart-modal.active {
+            transform: translateX(0);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .cart-item {
+            display: flex;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-right: 1rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-price {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .cart-item-remove {
+            color: var(--danger);
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .cart-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkout-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Offline Banner */
+        .offline-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--warning);
+            color: var(--dark);
+            text-align: center;
+            padding: 0.5rem;
+            z-index: 300;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .offline-banner.active {
+            transform: translateY(0);
+        }
+
+        /* Notification Button */
+        .notification-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                height: 250px;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-modal {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">ShopPWA</div>
+            <div class="cart-icon" id="cartBtn">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Your Offline Shopping Experience</h1>
+            <p>Browse, shop, and checkout even without an internet connection</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <h2>Featured Products</h2>
+        <div class="products-grid" id="productsGrid">
+            <!-- Products will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <button class="close-cart" id="closeCart">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-total">
+            Total: $<span id="cartTotal">0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+    </div>
+    <!-- ------------------------------------------------------------------------------------------------------- -->
+     <!-- Checkout Form Modal -->
+<div class="cart-modal" id="checkoutFormModal">
+    <div class="cart-header">
+        <h2>Delivery & Payment</h2>
+        <button class="close-cart" id="closeCheckout">✕</button>
+    </div>
+    <form id="checkoutForm">
+        <div style="margin-bottom: 1rem;">
+            <label>Full Name:</label><br>
+            <input type="text" name="name" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Mobile:</label><br>
+            <input type="tel" name="mobile" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Address:</label><br>
+            <textarea name="address" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;"></textarea>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Pin Code:</label><br>
+            <input type="text" name="pincode" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Payment Method:</label><br>
+            <select name="payment" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;">
+                <option value="COD">Cash on Delivery</option>
+                <option value="Card">Credit/Debit Card (Mock)</option>
+                <option value="UPI">UPI (Mock)</option>
+            </select>
+        </div>
+        <button type="submit" class="checkout-btn">Place Order</button>
+    </form>
+</div>
+
+    <!-- ------------------------------------------------------------------------------------------------------- -->
+
+    <!-- Offline Banner -->
+    <div class="offline-banner" id="offlineBanner">
+        You're currently offline. Don't worry, you can still shop!
+    </div>
+
+    <!-- Notification Button -->
+    <button class="notification-btn" id="notificationBtn" title="Enable notifications">
+        🔔
+    </button>
+   <!-- ------------------------------------------------------------------------------------------------------------------- -->
+    <!-- ------------------------------------------------------------------------------------------------------------------- -->
+    <footer>
+        <div class="container">
+            <p>© 2023 ShopPWA. All rights reserved.</p>
+            <p>Works offline and supports push notifications</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const productsGrid = document.getElementById('productsGrid');
+        const cartBtn = document.getElementById('cartBtn');
+        const cartModal = document.getElementById('cartModal');
+        const closeCart = document.getElementById('closeCart');
+        const cartItems = document.getElementById('cartItems');
+        const cartCount = document.getElementById('cartCount');
+        const cartTotal = document.getElementById('cartTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const offlineBanner = document.getElementById('offlineBanner');
+        const notificationBtn = document.getElementById('notificationBtn');
+
+        // App State
+        let cart = [];
+        
+        // Mock Product Data
+        const products = [
+            {
+                id: 1,
+                title: 'Wireless Headphones',
+                price: 99.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/29f63f26-12d4-4500-9620-7302b3fcf988.png'
+            },
+            {
+                id: 2,
+                title: 'Smart Watch',
+                price: 199.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1ad451c8-4ae4-45a4-a5a1-6ca5aa7937ba.png'
+            },
+            {
+                id: 3,
+                title: 'Bluetooth Speaker',
+                price: 49.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cc3fc2f7-ce44-4f0b-897b-b45e66d9b134.png'
+            },
+            {
+                id: 4,
+                title: 'Laptop Backpack',
+                price: 39.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e0ae3336-c0fd-468e-85d2-99fdb35d75a4.png'
+            },
+            {
+                id: 5,
+                title: 'Wireless Earbuds',
+                price: 79.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f80ba8b1-5bd5-4384-b35e-ca999e5d58e4.png'
+            },
+            {
+                id: 6,
+                title: 'Portable Charger',
+                price: 29.99,
+                image: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5f381201-cfe1-4593-b675-b3df72534bb3.png'
+            }
+        ];
+
+        // Initialize App
+        function init() {
+            renderProducts();
+            loadCart();
+            updateCartUI();
+            setupEventListeners();
+            checkOnlineStatus();
+            
+            // Register service worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful');
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                });
+            }
+            
+            // Check notification permission
+            checkNotificationPermission();
+        }
+
+        // Render Products
+        function renderProducts() {
+            productsGrid.innerHTML = '';
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.title}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-price">$${product.price.toFixed(2)}</p>
+                        <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `;
+                productsGrid.appendChild(productCard);
+            });
+        }
+
+        // Cart Functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    title: product.title,
+                    price: product.price,
+                    image: product.image,
+                    quantity: 1
+                });
+            }
+
+            saveCart();
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            // Update cart count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+
+            // Update cart items
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}" class="cart-item-image">
+                    <div class="cart-item-details">
+                        <h3 class="cart-item-title">${item.title}</h3>
+                        <p class="cart-item-price">$${(item.price * item.quantity).toFixed(2)} ($${item.price.toFixed(2)} × ${item.quantity})</p>
+                        <span class="cart-item-remove" data-id="${item.id}">Remove</span>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+
+            // Update total
+            cartTotal.textContent = total.toFixed(2);
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function loadCart() {
+            const savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Add to cart buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-to-cart')) {
+                    const productId = parseInt(e.target.getAttribute('data-id'));
+                    addToCart(productId);
+                }
+                
+                if (e.target.classList.contains('cart-item-remove')) {
+                    const productId = parseInt(e.target.getAttribute('data-id'));
+                    removeFromCart(productId);
+                }
+            });
+
+            // Cart modal
+            cartBtn.addEventListener('click', () => {
+                cartModal.classList.add('active');
+            });
+
+            closeCart.addEventListener('click', () => {
+                cartModal.classList.remove('active');
+            });
+
+            // Checkout
+            // checkoutBtn.addEventListener('click', () => {
+            //     if (cart.length === 0) return;
+                
+            //     alert('Thank you for your purchase!');
+            //     cart = [];
+            //     saveCart();
+            //     updateCartUI();
+            //     cartModal.classList.remove('active');
+            // });
+                const checkoutFormModal = document.getElementById('checkoutFormModal');
+    const closeCheckout = document.getElementById('closeCheckout');
+    const checkoutForm = document.getElementById('checkoutForm');
+
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) return;
+        
+        cartModal.classList.remove('active');
+        checkoutFormModal.classList.add('active');
+    });
+
+    closeCheckout.addEventListener('click', () => {
+        checkoutFormModal.classList.remove('active');
+    });
+
+    checkoutForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(checkoutForm);
+        const orderDetails = {
+            name: formData.get('name'),
+            mobile: formData.get('mobile'),
+            address: formData.get('address'),
+            pincode: formData.get('pincode'),
+            payment: formData.get('payment'),
+            cart: cart,
+            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)
+        };
+
+        // alert(`Order Placed Successfully!\n\nThank you, ${orderDetails.name}!\nYour order of $${orderDetails.total} will be delivered to:\n${orderDetails.address}, ${orderDetails.pincode}\nPayment Mode: ${orderDetails.payment}`);
+        fetch('http://localhost:5000/orders', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(orderDetails)
+})
+.then(response => response.json())
+.then(data => {
+    alert('Order Placed! Order ID: ' + data.id);
+    cart = [];
+    saveCart();
+    updateCartUI();
+    checkoutFormModal.classList.remove('active');
+    checkoutForm.reset();
+})
+.catch(err => {
+    console.error(err);
+    alert('Order failed: ' + err.message);
+});
+
+        cart = [];
+        saveCart();
+        updateCartUI();
+        checkoutFormModal.classList.remove('active');
+        checkoutForm.reset();
+    });
+
+
+            // Notification button
+            notificationBtn.addEventListener('click', requestNotificationPermission);
+
+            // Online/offline status
+            window.addEventListener('online', checkOnlineStatus);
+            window.addEventListener('offline', checkOnlineStatus);
+        }
+
+        // Online/Offline Functions
+        function checkOnlineStatus() {
+            if (navigator.onLine) {
+                offlineBanner.classList.remove('active');
+            } else {
+                offlineBanner.classList.add('active');
+            }
+        }
+
+        // Notification Functions
+        function checkNotificationPermission() {
+            if (Notification.permission === 'granted') {
+                notificationBtn.style.display = 'none';
+            } else if (Notification.permission === 'denied') {
+                notificationBtn.style.display = 'none';
+            }
+        }
+
+        function requestNotificationPermission() {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    notificationBtn.style.display = 'none';
+                    showWelcomeNotification();
+                    subscribeToPushNotifications();
+                }
+            });
+        }
+
+        function showWelcomeNotification() {
+            if (Notification.permission === 'granted') {
+                const notification = new Notification('Welcome to ShopPWA!', {
+                    body: 'You will now receive notifications about our latest deals.',
+                    icon: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/38cf9d42-9ba6-46f7-bfc4-11fd6a9bf1cf.png',
+                    badge: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8cf3872b-e523-462b-a02c-20fffdbd3999.png'
+                });
+            }
+        }
+
+        function subscribeToPushNotifications() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array('BLb5dHjCJZU1fvqtJpREWPMqhQhb...')
+                    }).then(subscription => {
+                        console.log('Push subscription:', subscription);
+                        // In a real app, you would send this subscription to your server
+                    }).catch(err => {
+                        console.log('Failed to subscribe:', err);
+                    });
+                });
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+            
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            
+            return outputArray;
+        }
+
+        // Initialize the app
+        init();
+    </script>
+    <script src="sw.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,21 @@
+{
+  "name": "ShopPWA",
+  "short_name": "ShopPWA",
+  "description": "An offline-capable e-commerce PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3a86ff",
+  "icons": [
+    {
+      "src": "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3ba95335-8d9b-42c8-acf2-55f12279d6ea.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5c243fd0-8bba-4587-b774-2d06857cb8b5.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
